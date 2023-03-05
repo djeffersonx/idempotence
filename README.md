@@ -8,26 +8,39 @@ This project has as main objective create a simple idempotence processor to be d
 
 For example:
 
-```
+```kotlin
  
- idempotenceManager.execute(
-     
-     idempotentProcess<YourFunctionReturnType>(idempotenceKey, "GroupKey") {
-        acceptRetry(true) // If the first execution fails and a second one comes, the main function will be executed again
-        
-        execute { // main function
-            // execute your idempotent process here
-        }
-        
-        onAlreadyExecuted {
-            // to be executed when already executed
-            // normally just returns you persisted data to your client
-        }
-        
-        onError {
-            // runned every time you have error in your main function
-        }
-    }
+class YourService (idempotenceManager: IdempotenceManager){
+    
+    fun yourFunction() : YourReturn =
+      idempotenceManager.execute( // idempotence manager that manages the idempotence to you
+          idempotentProcess<YourReturn>( // the idempotence DSL
+            idempotenceKey, // your idempotence key
+            "yourFunction" // the idempotence collection key (like group) to be used to index idempotents registers
+          ) {
+           
+            acceptRetry(true) // If the first execution fails and a second one comes, the main function will be executed again
+  
+            execute { // then main function
+              // your business logic to be executed once
+              YourReturn()
+            }
+  
+            onAlreadyExecuted {
+              // to be executed when already executed
+              // normally just returns you persisted data to your client
+              YourReturn()
+            }
+  
+            onError {
+              // runned every time you have error in your main function
+            }
+          }
+      )
+    
+}
+
+ 
 
 )
 ```
