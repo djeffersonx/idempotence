@@ -100,7 +100,9 @@ class IdempotenceLockManagerIntegrationTest {
 
     private fun `given an idempotent process`(idempotencyKey: String, acceptRetry: Boolean = false) =
         idempotentProcess<String>(idempotencyKey, "ROOT") {
-            this.acceptRetry = acceptRetry
+
+            acceptRetry(acceptRetry)
+
             execute {
                 "mainRun"
             }

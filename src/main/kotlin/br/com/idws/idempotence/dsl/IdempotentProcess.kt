@@ -22,7 +22,7 @@ class IdempotentProcess<R>(
         this.onError = onError
     }
 
-    fun retryEnabled(acceptRetryCalls: Boolean) {
+    fun acceptRetry(acceptRetryCalls: Boolean) {
         this.acceptRetry = acceptRetryCalls
     }
 
