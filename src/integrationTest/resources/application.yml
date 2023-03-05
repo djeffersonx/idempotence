@@ -1,0 +1,18 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    database-platform: org.hibernate.dialect.PostgreSQL10Dialect
+  datasource:
+    url: jdbc:postgresql://localhost:${POSTGRESQL_DYNAMIC_PORT:5432}/idempotency_test
+    username: postgres
+    password: postgres
+    hikari:
+      minimumIdle: 100
+      maximumPoolSize: 100
+
+logging.level.com.zaxxer.hikari.HikariConfig: DEBUG
+logging.level.com.zaxxer.hikari: DEBUG
+
+trace: true
