@@ -2,6 +2,7 @@ package br.com.idws.idempotence.model
 
 import java.time.LocalDateTime
 import java.util.UUID
+import javax.persistence.CascadeType
 import javax.persistence.Entity
 import javax.persistence.Id
 import javax.persistence.OneToOne
@@ -23,6 +24,17 @@ data class IdempotenceLock(
     val collection: String,
     val createdAt: LocalDateTime = LocalDateTime.now(),
 ) {
-    @OneToOne(mappedBy = "idempotenceLock")
+    @OneToOne(mappedBy = "idempotenceLock", cascade = [CascadeType.PERSIST, CascadeType.MERGE])
     lateinit var process: IdempotentProcess
+
+    companion object {
+        fun of(idempotenceKey: String, collection: String) =
+            IdempotenceLock(
+                idempotenceKey = idempotenceKey,
+                collection = collection
+            ).apply {
+                this.process = IdempotentProcess(idempotenceLock = this)
+            }
+    }
+
 }

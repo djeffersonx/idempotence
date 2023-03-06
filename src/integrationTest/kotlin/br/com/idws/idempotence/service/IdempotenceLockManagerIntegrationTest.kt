@@ -55,7 +55,7 @@ class IdempotenceLockManagerIntegrationTest {
                 idempotenceManager.execute(processWithError)
             }
 
-            repository.findForUpdateSkipLocked(processWithError.key, processWithError.collection).let { savedLock ->
+            repository.findForUpdateSkipLockedBy(processWithError.key, processWithError.collection).let { savedLock ->
                 Assertions.assertNotNull(savedLock)
                 Assertions.assertEquals(Status.ERROR, savedLock?.process?.status)
             }
@@ -79,7 +79,7 @@ class IdempotenceLockManagerIntegrationTest {
                 )
             }
 
-            repository.findForUpdateSkipLocked(processWithError.key, processWithError.collection).let { savedLock ->
+            repository.findForUpdateSkipLockedBy(processWithError.key, processWithError.collection).let { savedLock ->
                 Assertions.assertNotNull(savedLock)
                 Assertions.assertEquals(Status.ERROR, savedLock?.process?.status)
             }
@@ -89,7 +89,7 @@ class IdempotenceLockManagerIntegrationTest {
 
             Assertions.assertEquals("mainRun", successExecution)
 
-            repository.findForUpdateSkipLocked(processWithError.key, processWithError.collection).let { savedLock ->
+            repository.findForUpdateSkipLockedBy(processWithError.key, processWithError.collection).let { savedLock ->
                 Assertions.assertNotNull(savedLock)
                 Assertions.assertEquals(Status.SUCCESS, savedLock?.process?.status)
             }

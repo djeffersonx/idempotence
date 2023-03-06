@@ -21,14 +21,14 @@ class GetOrCreateLock(
     ): IdempotenceLock = try {
         findLock(process)
             ?: saveLock(process)
-                .let { repository.findForUpdate(process.key, process.collection)!! }
+                .let { repository.findForUpdateBy(process.key, process.collection)!! }
     } catch (ex: DataIntegrityViolationException) {
         logger.error("[${process.key}] Error loading the lock", ex)
         throw LockUnavailableException(process.key)
     }
 
     private fun <R> findLock(process: Idempotent<R>): IdempotenceLock? {
-        return repository.findForUpdate(process.key, process.collection)?.let { lock ->
+        return repository.findForUpdateBy(process.key, process.collection)?.let { lock ->
             if (lock.process.isError() && process.acceptRetry) {
                 lock
             } else {

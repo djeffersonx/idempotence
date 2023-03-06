@@ -14,7 +14,7 @@ class YourService (idempotenceManager: IdempotenceManager){
     
     fun yourFunction() : YourReturn =
       idempotenceManager.execute( // idempotence manager that manages the idempotence to you
-          idempotentProcess<YourReturn>( // the idempotence DSL
+          Idempotent<YourReturn>( // the idempotence DSL
             idempotenceKey, // your idempotence key
             "yourFunction" // the idempotence collection key (like group) to be used to index idempotents registers
           ) {
@@ -46,3 +46,4 @@ class YourService (idempotenceManager: IdempotenceManager){
 
 - If a second request comes and the first one still processing, the system will throw a `LockUnavailableException`
   - This is a limitation or a expected behavior? We should add a possibility to configure the process to wait the first execution finished to return the response??? Oõ
+- Since for this is a discovery implementation I'm using the Postgresql database. But in the future I need to define the domain of the project and the extension points to enable others implementations. 

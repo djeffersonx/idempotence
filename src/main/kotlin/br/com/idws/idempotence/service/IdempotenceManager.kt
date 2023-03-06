@@ -35,7 +35,7 @@ class IdempotenceManager(
     }
 
     private fun <R> findLock(process: Idempotent<R>) =
-        repository.findForUpdateSkipLocked(process.key, process.collection)
+        repository.findForUpdateSkipLockedBy(process.key, process.collection)
 
 }
 
