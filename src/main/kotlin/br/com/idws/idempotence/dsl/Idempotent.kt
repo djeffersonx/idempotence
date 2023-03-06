@@ -1,6 +1,6 @@
 package br.com.idws.idempotence.dsl
 
-class IdempotentProcess<R>(
+class Idempotent<R>(
     val key: String,
     val collection: String
 ) {
@@ -28,10 +28,10 @@ class IdempotentProcess<R>(
 
 }
 
-fun <R> idempotentProcess(
+fun <R> Idempotent(
     key: String,
     collection: String,
-    initializer: IdempotentProcess<R>.() -> Unit
-) = IdempotentProcess<R>(
+    initializer: Idempotent<R>.() -> Unit
+) = Idempotent<R>(
     key, collection
 ).apply(initializer)

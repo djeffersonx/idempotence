@@ -1,6 +1,6 @@
 package br.com.idws.idempotence.service
 
-import br.com.idws.idempotence.dsl.idempotentProcess
+import br.com.idws.idempotence.dsl.Idempotent
 import br.com.idws.idempotence.model.Status
 import br.com.idws.idempotence.repository.IdempotenceLockRepository
 import br.com.idws.idempotence.service.exception.LockUnavailableException
@@ -49,7 +49,7 @@ class IdempotenceLockManagerIntegrationTest {
         fun `it doesn't retry when isn't configured to do it`() {
             val idempotencyKey = UUID.randomUUID().toString()
 
-            val processWithError = `given a process with error`(idempotencyKey, acceptRetry = false)
+            val processWithError = `given a proces with error`(idempotencyKey, acceptRetry = false)
 
             Assertions.assertThrows(Exception::class.java) {
                 idempotenceManager.execute(processWithError)
@@ -57,7 +57,7 @@ class IdempotenceLockManagerIntegrationTest {
 
             repository.findForUpdateSkipLocked(processWithError.key, processWithError.collection).let { savedLock ->
                 Assertions.assertNotNull(savedLock)
-                Assertions.assertEquals(Status.ERROR, savedLock?.status)
+                Assertions.assertEquals(Status.ERROR, savedLock?.process?.status)
             }
 
             Assertions.assertThrows(LockUnavailableException::class.java) {
@@ -71,7 +71,7 @@ class IdempotenceLockManagerIntegrationTest {
 
             val idempotencyKey = UUID.randomUUID().toString()
 
-            val processWithError = `given a process with error`(idempotencyKey, acceptRetry = true)
+            val processWithError = `given a proces with error`(idempotencyKey, acceptRetry = true)
 
             Assertions.assertThrows(Exception::class.java) {
                 idempotenceManager.execute(
@@ -81,7 +81,7 @@ class IdempotenceLockManagerIntegrationTest {
 
             repository.findForUpdateSkipLocked(processWithError.key, processWithError.collection).let { savedLock ->
                 Assertions.assertNotNull(savedLock)
-                Assertions.assertEquals(Status.ERROR, savedLock?.status)
+                Assertions.assertEquals(Status.ERROR, savedLock?.process?.status)
             }
 
             val successExecution =
@@ -91,15 +91,15 @@ class IdempotenceLockManagerIntegrationTest {
 
             repository.findForUpdateSkipLocked(processWithError.key, processWithError.collection).let { savedLock ->
                 Assertions.assertNotNull(savedLock)
-                Assertions.assertEquals(Status.SUCCESS, savedLock?.status)
+                Assertions.assertEquals(Status.SUCCESS, savedLock?.process?.status)
             }
 
         }
 
     }
 
-    private fun `given an idempotent process`(idempotencyKey: String, acceptRetry: Boolean = false) =
-        idempotentProcess<String>(idempotencyKey, "ROOT") {
+    private fun `given an idempotent process`(key: String, acceptRetry: Boolean = false) =
+        Idempotent<String>(key, "ROOT") {
 
             acceptRetry(acceptRetry)
 
@@ -114,8 +114,8 @@ class IdempotenceLockManagerIntegrationTest {
             }
         }
 
-    private fun `given a process with error`(idempotencyKey: String, acceptRetry: Boolean = false) =
-        idempotentProcess<String>(idempotencyKey, "ROOT") {
+    private fun `given a proces with error`(idempotencyKey: String, acceptRetry: Boolean = false) =
+        Idempotent<String>(idempotencyKey, "ROOT") {
 
             this.acceptRetry = acceptRetry
 

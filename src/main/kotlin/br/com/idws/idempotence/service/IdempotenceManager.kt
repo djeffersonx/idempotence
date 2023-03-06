@@ -1,10 +1,11 @@
 package br.com.idws.idempotence.service
 
-import br.com.idws.idempotence.dsl.IdempotentProcess
+import br.com.idws.idempotence.dsl.Idempotent
 import br.com.idws.idempotence.repository.IdempotenceLockRepository
 import br.com.idws.idempotence.service.exception.LockUnavailableException
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class IdempotenceManager(
@@ -15,8 +16,9 @@ class IdempotenceManager(
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
+    @Transactional
     fun <R> execute(
-        process: IdempotentProcess<R>
+        process: Idempotent<R>
     ) = try {
 
         run(getOrCreateLock(process), process)
@@ -25,11 +27,15 @@ class IdempotenceManager(
 
         logger.error("[${process.key}] - Lock unavailable")
 
-        if (repository.findForUpdateSkipLocked(process.key, process.collection)?.isSuccess() == true) {
+        if (findLock(process)?.process?.isSuccess() == true) {
             process.onAlreadyExecuted()
         } else {
             throw ex // Still PROCESSING or is in ERROR
         }
     }
+
+    private fun <R> findLock(process: Idempotent<R>) =
+        repository.findForUpdateSkipLocked(process.key, process.collection)
+
 }
 

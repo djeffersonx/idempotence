@@ -1,6 +1,6 @@
 package br.com.idws.idempotence.service
 
-import br.com.idws.idempotence.dsl.IdempotentProcess
+import br.com.idws.idempotence.dsl.Idempotent
 import br.com.idws.idempotence.model.IdempotenceLock
 import br.com.idws.idempotence.repository.IdempotenceLockRepository
 import br.com.idws.idempotence.service.exception.LockUnavailableException
@@ -17,9 +17,9 @@ class GetOrCreateLock(
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     operator fun <R> invoke(
-        process: IdempotentProcess<R>
+        process: Idempotent<R>
     ): IdempotenceLock = try {
-        findLockWithError(process)
+        findLock(process)
             ?: saveLock(process)
                 .let { repository.findForUpdate(process.key, process.collection)!! }
     } catch (ex: DataIntegrityViolationException) {
@@ -27,9 +27,9 @@ class GetOrCreateLock(
         throw LockUnavailableException(process.key)
     }
 
-    private fun <R> findLockWithError(process: IdempotentProcess<R>): IdempotenceLock? {
+    private fun <R> findLock(process: Idempotent<R>): IdempotenceLock? {
         return repository.findForUpdate(process.key, process.collection)?.let { lock ->
-            if (lock.isError() && process.acceptRetry) {
+            if (lock.process.isError() && process.acceptRetry) {
                 lock
             } else {
                 throw LockUnavailableException(process.key)

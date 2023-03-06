@@ -1,6 +1,6 @@
 package builders
 
-import br.com.idws.idempotence.dsl.idempotentProcess
+import br.com.idws.idempotence.dsl.Idempotent
 import java.time.Duration
 import java.util.UUID
 
@@ -13,7 +13,7 @@ class IdempotentProcessBuilder {
     fun <R> build(
         main: () -> R,
         fallback: () -> R
-    ) = idempotentProcess<R>(key, group) {
+    ) = Idempotent<R>(key, group) {
         execute {
             main()
         }

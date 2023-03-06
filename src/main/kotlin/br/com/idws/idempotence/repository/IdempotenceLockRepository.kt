@@ -10,14 +10,16 @@ import java.util.UUID
 interface IdempotenceLockRepository : JpaRepository<IdempotenceLock, UUID> {
 
     @Query(
-        value = "SELECT * FROM idempotence_lock i WHERE i.idempotence_key = ?1 FOR UPDATE",
+        value = """SELECT * FROM idempotence_lock il WHERE il.idempotence_key = ?1 FOR UPDATE""",
         nativeQuery = true
     )
     fun findForUpdate(idempotenceKey: String, collection: String): IdempotenceLock?
 
-
     @Query(
-        value = "SELECT * FROM idempotence_lock i WHERE i.idempotence_key = ?1 FOR UPDATE SKIP LOCKED",
+        value = """SELECT * FROM idempotence_lock il
+            inner join idempotent_process ip on ip.idempotence_lock_id = il.id
+            WHERE il.idempotence_key = ?1 
+            FOR UPDATE SKIP LOCKED""",
         nativeQuery = true
     )
     fun findForUpdateSkipLocked(idempotenceKey: String, collection: String): IdempotenceLock?

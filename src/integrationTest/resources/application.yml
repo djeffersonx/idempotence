@@ -9,8 +9,9 @@ spring:
     username: postgres
     password: postgres
     hikari:
-      minimumIdle: 100
-      maximumPoolSize: 100
+      minimumIdle: 5
+      maximumPoolSize: 10
+      connection-timeout: 1000
 
 logging.level.com.zaxxer.hikari.HikariConfig: DEBUG
 logging.level.com.zaxxer.hikari: DEBUG
